@@ -1,13 +1,19 @@
-FROM node:lts-alpine
+# Base image
+FROM node:18-alpine
 
-RUN apk add --no-cache bash
+# Create app directory
+WORKDIR /home/node/app
+
+# A wildcard is used to ensure both package.json AND package-lock.json are copied
+COPY package*.json ./
 
 RUN npm install -g @nestjs/cli
 
-COPY .docker/entrypoint.sh /home/node/app/.docker/entrypoint.sh
+# Install app dependencies
+RUN npm install
 
-RUN ["chmod", "+x", "/home/node/app/.docker/entrypoint.sh"]
+# Bundle app source
+COPY . .
 
-USER node
-
-WORKDIR /home/node/app
+# Creates a "dist" folder with the production build
+RUN npm run build
